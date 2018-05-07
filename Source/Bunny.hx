@@ -13,7 +13,7 @@ class Bunny extends Tile {
 	
 	public function new () {
 		
-		super ();
+		super (0);
 		
 	}
 	
