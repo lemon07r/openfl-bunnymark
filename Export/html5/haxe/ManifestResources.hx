@@ -1,7 +1,8 @@
 package;
 
 
-import lime.app.Config;
+import haxe.io.Bytes;
+import lime.utils.AssetBundle;
 import lime.utils.AssetLibrary;
 import lime.utils.AssetManifest;
 import lime.utils.Assets;
@@ -14,73 +15,95 @@ import sys.FileSystem;
 
 
 @:keep @:dox(hide) class ManifestResources {
-	
-	
+
+
 	public static var preloadLibraries:Array<AssetLibrary>;
 	public static var preloadLibraryNames:Array<String>;
-	
-	
-	public static function init (config:Config):Void {
-		
+	public static var rootPath:String;
+
+
+	public static function init (config:Dynamic):Void {
+
 		preloadLibraries = new Array ();
 		preloadLibraryNames = new Array ();
-		
-		var rootPath = null;
-		
+
+		rootPath = null;
+
 		if (config != null && Reflect.hasField (config, "rootPath")) {
-			
+
 			rootPath = Reflect.field (config, "rootPath");
-			
+
 		}
-		
+
 		if (rootPath == null) {
-			
+
 			#if (ios || tvos || emscripten)
 			rootPath = "assets/";
-			#elseif (sys && windows && !cs)
-			rootPath = FileSystem.absolutePath (haxe.io.Path.directory (#if (haxe_ver >= 3.3) Sys.programPath () #else Sys.executablePath () #end)) + "/";
-			#else
+			#elseif android
 			rootPath = "";
+			#elseif console
+			rootPath = lime.system.System.applicationDirectory;
+			#else
+			rootPath = "./";
 			#end
-			
+
 		}
-		
+
 		Assets.defaultRootPath = rootPath;
-		
+
 		#if (openfl && !flash && !display)
 		
 		#end
-		
-		var data, manifest, library;
-		
-		data = '{"name":null,"assets":"aoy4:pathy25:assets%2Fwabbit_alpha.pngy4:sizei449y4:typey5:IMAGEy2:idR1y7:preloadtgh","version":2,"libraryArgs":[],"libraryType":null}';
+
+		var data, manifest, library, bundle;
+
+		#if kha
+
+		null
+		library = AssetLibrary.fromManifest (manifest);
+		Assets.registerLibrary ("null", library);
+
+		if (library != null) preloadLibraries.push (library);
+		else preloadLibraryNames.push ("null");
+
+		#else
+
+		data = '{"name":null,"assets":"aoy4:pathy25:assets%2Fwabbit_alpha.pngy4:sizei449y4:typey5:IMAGEy2:idR1y7:preloadtgh","rootPath":null,"version":2,"libraryArgs":[],"libraryType":null}';
 		manifest = AssetManifest.parse (data, rootPath);
 		library = AssetLibrary.fromManifest (manifest);
 		Assets.registerLibrary ("default", library);
 		
-		
+
 		library = Assets.getLibrary ("default");
 		if (library != null) preloadLibraries.push (library);
 		else preloadLibraryNames.push ("default");
 		
-		
+
+		#end
+
 	}
-	
-	
+
+
 }
 
+
+#if kha
+
+null
+
+#else
 
 #if !display
 #if flash
 
-@:keep @:bind #if display private #end class __ASSET__assets_wabbit_alpha_png extends flash.display.BitmapData { public function new () { super (0, 0, true, 0); } }
-@:keep @:bind #if display private #end class __ASSET__manifest_default_json extends null { }
+@:keep @:bind @:noCompletion #if display private #end class __ASSET__assets_wabbit_alpha_png extends flash.display.BitmapData { public function new () { super (0, 0, true, 0); } }
+@:keep @:bind @:noCompletion #if display private #end class __ASSET__manifest_default_json extends null { }
 
 
 #elseif (desktop || cpp)
 
-@:keep @:image("Assets/wabbit_alpha.png") #if display private #end class __ASSET__assets_wabbit_alpha_png extends lime.graphics.Image {}
-@:keep @:file("") #if display private #end class __ASSET__manifest_default_json extends haxe.io.Bytes {}
+@:keep @:image("Assets/wabbit_alpha.png") @:noCompletion #if display private #end class __ASSET__assets_wabbit_alpha_png extends lime.graphics.Image {}
+@:keep @:file("") @:noCompletion #if display private #end class __ASSET__manifest_default_json extends haxe.io.Bytes {}
 
 
 
@@ -92,7 +115,13 @@ import sys.FileSystem;
 
 #if (openfl && !flash)
 
+#if html5
 
+#else
 
 #end
+
+#end
+#end
+
 #end
