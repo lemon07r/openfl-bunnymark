@@ -11,6 +11,8 @@
 	<define name="stats" if="html5" />
 	
 	<haxelib name="openfl" />
+
+	<haxelib name="closure" />
 	
 	<assets path="Assets" rename="assets" />
 	
